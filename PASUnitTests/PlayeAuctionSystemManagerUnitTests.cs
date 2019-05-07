@@ -31,12 +31,22 @@ namespace PAS.Tests
             player.HighestScore = 75;
             player.Player_Name = "MS Dhoni";
             player.Player_NO = 0;
+
+            mockPASManager.Setup(m => m.AddPlayer(It.IsAny<string>(), It.IsAny<Player>())).Returns(1);
+            Player addedPlayer = new Player();
+            addedPlayer.Player_NO = 1;
+            mockPlayerRepository.Setup(m => m.GetById(It.IsAny<string>()));
+            mockPlayerRepository.Setup(m => m.Insert(It.IsAny<Player>())).Returns(addedPlayer);
+          
         }
 
         [TestMethod()]
         public void PlayerAuctionSystemManagerTest()
         {
-            mockPASManager.Setup(m => m.AddPlayer(It.IsAny<string>(), It.IsAny<Player>())).Returns(1);
+            Team team = new Team();
+            team.Team_Id = 1;
+            team.Team_Name = "CSK";
+            mockTeamRepository.Setup(m => m.GetById(It.IsAny<string>())).Returns(team);
             var pasmanager = new PlayerAuctionSystemManager(mockPlayerRepository.Object, mockTeamRepository.Object, mockTeamPlayerRepository.Object);
             var result = pasmanager.AddPlayer("CSk", player);
             Assert.IsTrue(result == 1);
@@ -45,7 +55,10 @@ namespace PAS.Tests
         [TestMethod()]
         public void AddPlayer_NotABowlerTest()
         {
-            mockPASManager.Setup(m => m.AddPlayer(It.IsAny<string>(), It.IsAny<Player>())).Returns(1);
+            Team team = new Team();
+            team.Team_Id = 1;
+            team.Team_Name = "CSK";
+            mockTeamRepository.Setup(m => m.GetById(It.IsAny<string>())).Returns(team);
             var pasmanager = new PlayerAuctionSystemManager(mockPlayerRepository.Object, mockTeamRepository.Object, mockTeamPlayerRepository.Object);
             player.Category = "Bowler";
             player.BestFigure = string.Empty;
@@ -63,6 +76,10 @@ namespace PAS.Tests
         [TestMethod()]
         public void AddPlayer_NotABatsmanTest()
         {
+            Team team = new Team();
+            team.Team_Id = 1;
+            team.Team_Name = "CSK";
+            mockTeamRepository.Setup(m => m.GetById(It.IsAny<string>())).Returns(team);
             mockPASManager.Setup(m => m.AddPlayer(It.IsAny<string>(), It.IsAny<Player>())).Returns(1);
             var pasmanager = new PlayerAuctionSystemManager(mockPlayerRepository.Object, mockTeamRepository.Object, mockTeamPlayerRepository.Object);
             player.Category = "Batsman";
@@ -82,6 +99,10 @@ namespace PAS.Tests
         [TestMethod()]
         public void AddPlayer_InvalidCategoryTest()
         {
+            Team team = new Team();
+            team.Team_Id = 1;
+            team.Team_Name = "CSK";
+            mockTeamRepository.Setup(m => m.GetById(It.IsAny<string>())).Returns(team);
             mockPASManager.Setup(m => m.AddPlayer(It.IsAny<string>(), It.IsAny<Player>())).Returns(1);
             var pasmanager = new PlayerAuctionSystemManager(mockPlayerRepository.Object, mockTeamRepository.Object, mockTeamPlayerRepository.Object);
             player.Category = "xxxx";
@@ -106,6 +127,11 @@ namespace PAS.Tests
             try
             {
                 var result = pasmanager.AddPlayer("sss", player);
+
+                Team team = new Team();
+                team.Team_Id = 1;
+                team.Team_Name = "SSS";
+                mockTeamRepository.Setup(m => m.GetById(It.IsAny<string>()));
                 Assert.Fail("No Exception thrown");
             }
             catch (Exception ex)
@@ -118,6 +144,10 @@ namespace PAS.Tests
         [TestMethod()]
         public void AddPlayer_DuplicateEntryTest()
         {
+            Team team = new Team();
+            team.Team_Id = 1;
+            team.Team_Name = "CSK";
+            mockTeamRepository.Setup(m => m.GetById(It.IsAny<string>())).Returns(team);
             mockPASManager.Setup(m => m.AddPlayer(It.IsAny<string>(), It.IsAny<Player>())).Returns(1);
             var pasmanager = new PlayerAuctionSystemManager(mockPlayerRepository.Object, mockTeamRepository.Object, mockTeamPlayerRepository.Object);
             player.Category = "Batsman";
@@ -138,11 +168,26 @@ namespace PAS.Tests
         public void DisplayPlayerTest()
         {
             List<Player> players = new List<Player>();
+            player.Player_NO = 1;
             players.Add(player);
             player.Player_Name = "Raina";
+            player.Player_NO = 2;
             players.Add(player);
+            Team team = new Team();
+            team.Team_Id = 1;
+            team.Team_Name = "CSK";
 
-            mockPASManager.Setup(m => m.DisplayPlayer(It.IsAny<string>())).Returns(players);
+            List<Team_Player> team_Players = new List<Team_Player>();
+            Team_Player team_Player = new Team_Player();
+            team_Player.Player_No = 1;
+            team_Player.Team_Id = 1;
+            team_Players.Add(team_Player);
+            team_Player.Player_No = 2;
+            team_Player.Team_Id = 1;
+            team_Players.Add(team_Player);
+            mockTeamRepository.Setup(m => m.GetById(It.IsAny<string>())).Returns(team);
+            mockTeamPlayerRepository.Setup(m => m.GetAll()).Returns(team_Players);
+            mockPlayerRepository.Setup(m => m.GetAll()).Returns(players);
             var pasmanager = new PlayerAuctionSystemManager(mockPlayerRepository.Object, mockTeamRepository.Object, mockTeamPlayerRepository.Object);
             var result =pasmanager.DisplayPlayer("CSK");
             Assert.IsTrue(players.Count == result.Count);

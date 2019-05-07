@@ -31,9 +31,11 @@ namespace PAS.DAO
         {
             return table.Find(id);
         }
-        public void Insert(T obj)
+        public T Insert(T obj)
         {
             table.Add(obj);
+            obj = table.Find(obj);
+            return obj;
         }
         public void Update(T obj)
         {

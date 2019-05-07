@@ -24,7 +24,7 @@ namespace PAS
         public int AddPlayer(string teamName,Player player)
         {
 
-            if (player.Category != "Batsman" || player.Category != "Bowler" || player.Category != "Allrounder")
+            if (player.Category != "Batsman" && player.Category != "Bowler" && player.Category != "Allrounder")
             {
                 throw new InvalidCategoryException("Invalid category name please check your input");
             }
@@ -41,12 +41,11 @@ namespace PAS
 
             if(_playerGenericRepository.GetById(player.Player_Name) != null)
             {
-                throw new DuplicateEntryException("Player details alreadt exist in the database");
+                throw new DuplicateEntryException("Player details already exist in the database");
             }
 
-            _playerGenericRepository.Insert(player);
-
-            Player addedPlayer = _playerGenericRepository.GetById(player.Player_Name);
+            Player addedPlayer = _playerGenericRepository.Insert(player);
+            
             if(addedPlayer.Player_NO != 0)
             {
                 AddTeamPlayer(teamName, addedPlayer.Player_NO);
